@@ -870,6 +870,11 @@
     }
   });
 
+  document.getElementById('ecc').addEventListener('input',function(ev){
+    var id=ev.target&&ev.target.id;
+    if(id&&DRAFTS.indexOf(id)>=0) draft[id]=ev.target.value;
+  });
+
   document.getElementById('ecc').addEventListener('change',function(ev){
     var el=ev.target;
     if(el.dataset.photo){
@@ -902,8 +907,14 @@
 
   async function refresh(){
     if(tab==='set'||sheet||busy) return;
-    if(dirty&&online){ await save(S); if(dirty) return }   // never overwrite unsynced work
-    S=await load(); render();
+    var ae=document.activeElement;                          // someone is typing: leave them alone
+    if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA')) return;
+    if(dirty&&online){ await save(S); if(dirty) return }    // never overwrite unsynced work
+    var next=await load();
+    var same;
+    try{ same = JSON.stringify(next)===JSON.stringify(S) }catch(e){ same=false }
+    S=next;
+    if(!same) render();                                     // nothing new, so nothing to redraw
   }
   document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh()});
   setInterval(function(){if(!document.hidden)refresh()},10000);
