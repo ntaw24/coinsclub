@@ -1,0 +1,17 @@
+{
+  "name": "Ellisa & Nathan Exercise Coin Club",
+  "short_name": "Coin Club",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBF3DF",
+  "theme_color": "#D8342A",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

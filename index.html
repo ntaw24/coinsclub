@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ellisa &amp; Nathan Exercise Coin Club</title>
+<meta name="theme-color" content="#D8342A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Coin Club">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" href="icon.png">
+<style>html,body{margin:0;padding:0;background:#FBF3DF}</style>
+<style>
+  :root{
+    --paper:#FBF3DF; --ink:#1A1613; --red:#D8342A; --yellow:#FFC61E;
+    --blue:#3A73C4; --pink:#EE9BB4; --green:#3E8E5A;
+    --comic:"Chalkboard SE","Comic Sans MS","Marker Felt","Comic Neue",ui-rounded,cursive;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  #ecc{
+    min-height:100vh;
+    font-family:var(--comic);color:var(--ink);max-width:470px;margin:0 auto;
+    padding:10px 12px 40px;background-color:var(--paper);
+    background-image:radial-gradient(var(--ink) .7px,transparent .8px);background-size:9px 9px;
+    line-height:1.45;
+  }
+  #ecc .panel{background:#fff;border:3px solid var(--ink);border-radius:4px;box-shadow:5px 5px 0 var(--ink);padding:14px;margin-bottom:20px;position:relative}
+  #ecc .logo{background:var(--red);border:3px solid var(--ink);border-radius:4px;box-shadow:4px 4px 0 var(--ink);padding:8px 12px 10px;transform:rotate(-1.2deg);margin-bottom:16px}
+  #ecc h1{font-size:26px;line-height:1;margin:0;letter-spacing:-.5px;text-transform:uppercase;color:#fff;text-shadow:2.5px 2.5px 0 var(--ink)}
+  #ecc .logo .names{font-size:15px;color:var(--yellow);margin-bottom:1px;text-shadow:1.5px 1.5px 0 var(--ink)}
+  #ecc .logo .sub{font-size:12px;color:#FFE9A8;margin-top:4px;line-height:1.3}
+  #ecc .strip{height:11px;margin:0 0 16px;background:repeating-linear-gradient(-45deg,var(--ink) 0 8px,var(--yellow) 8px 16px);border:2px solid var(--ink);border-radius:2px}
+  #ecc h2{font-size:16px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.3px}
+  #ecc p{margin:0 0 8px}
+  #ecc .muted{color:#6B625A;font-size:13px}
+
+  #ecc .hero{display:flex;align-items:flex-end;gap:6px;margin-bottom:6px}
+  #ecc .balloon{flex:1;position:relative;background:#fff;border:3px solid var(--ink);border-radius:22px;padding:10px 12px;margin-bottom:16px}
+  #ecc .balloon:after{content:"";position:absolute;right:20px;bottom:-16px;border-right:15px solid transparent;border-top:17px solid var(--ink)}
+  #ecc .balloon:before{content:"";position:absolute;right:25px;bottom:-9px;border-right:9px solid transparent;border-top:11px solid #fff}
+  #ecc .bal-name{font-size:13px;color:#6B625A}
+  #ecc .bal-coins{font-size:32px;line-height:1.05}
+  #ecc .bal-coins span{font-size:15px}
+  #ecc .ground{height:0;border-top:3px dashed var(--ink);opacity:.35;margin:0 4px 14px}
+
+  #ecc .av{display:flex;align-items:center;justify-content:center;flex:0 0 auto;overflow:visible}
+  #ecc .av img,#ecc .av svg{width:100%;height:100%;object-fit:contain;display:block}
+  #ecc .av.big{width:104px;height:104px;font-size:52px;transform-origin:bottom center}
+  #ecc .av.big.jump{animation:hop .55s ease}
+  #ecc .av.sm{width:32px;height:32px;font-size:19px}
+  #ecc .av.md{width:54px;height:54px;font-size:30px}
+  @keyframes hop{0%{transform:translateY(0)}35%{transform:translateY(-18px) rotate(-7deg)}60%{transform:translateY(0) rotate(3deg)}100%{transform:translateY(0)}}
+
+  #ecc .burst{position:absolute;right:22px;top:6px;width:104px;height:104px;pointer-events:none;opacity:0}
+  #ecc .burst.on{animation:pop .9s ease-out}
+  @keyframes pop{0%{opacity:0;transform:scale(.3) rotate(-14deg)}25%{opacity:1;transform:scale(1.05) rotate(6deg)}70%{opacity:1;transform:scale(1) rotate(0)}100%{opacity:0;transform:scale(1.1)}}
+
+  #ecc .who{display:flex;gap:8px;margin-bottom:16px}
+  #ecc .who button{flex:1;display:flex;align-items:center;gap:7px;font-family:var(--comic);font-size:14px;padding:6px 8px;cursor:pointer;background:#fff;border:3px solid var(--ink);border-radius:4px;box-shadow:3px 3px 0 var(--ink);color:var(--ink);text-align:left}
+  #ecc .who button.on{background:var(--yellow)}
+  #ecc .who small{display:block;font-size:12px;color:#6B625A}
+  #ecc .who button.on small{color:#5c4a12}
+
+  #ecc .tabs{display:flex;gap:6px;margin-bottom:16px}
+  #ecc .tabs button{flex:1;font-family:var(--comic);font-size:13px;padding:8px 2px;cursor:pointer;background:#fff;border:3px solid var(--ink);border-radius:4px 4px 0 0;color:var(--ink)}
+  #ecc .tabs button.on{background:var(--ink);color:var(--paper)}
+
+  #ecc .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  #ecc .card{font-family:var(--comic);cursor:pointer;background:#fff;border:3px solid var(--ink);border-radius:4px;box-shadow:3px 3px 0 var(--ink);padding:11px 9px;color:var(--ink);text-align:center;font-size:14px}
+  #ecc .card:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+  #ecc .card .ic{font-size:28px;display:block;line-height:1.2}
+  #ecc .card .mn{display:block;font-size:12px;color:#6B625A}
+  #ecc .card .cn{display:inline-block;margin-top:5px;background:var(--yellow);border:2px solid var(--ink);border-radius:12px;padding:1px 9px;font-size:13px}
+
+  #ecc .rw{display:flex;align-items:center;gap:10px;border:2.5px solid var(--ink);border-radius:4px;padding:9px;margin-bottom:9px;background:#fff}
+  #ecc .rw .em{font-size:26px}
+  #ecc .rw .nm{flex:1;font-size:14px}
+  #ecc .rw .nm small{display:block;color:#6B625A;font-size:12px}
+  #ecc .btn{font-family:var(--comic);font-size:13px;padding:7px 11px;cursor:pointer;background:var(--yellow);border:2.5px solid var(--ink);border-radius:4px;color:var(--ink)}
+  #ecc .btn.ghost{background:#fff}
+  #ecc .btn.dark{background:var(--ink);color:var(--paper)}
+  #ecc .btn.wide{width:100%;font-size:15px;padding:10px}
+  #ecc .btn.tiny{font-size:13px;padding:5px 9px}
+  #ecc .btn[disabled]{background:#E5E0D6;color:#8C857B;cursor:not-allowed}
+
+  #ecc .week{display:flex;gap:5px;margin:4px 0 10px}
+  #ecc .day{flex:1;aspect-ratio:1/1;border:2.5px solid var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;background:#fff}
+  #ecc .day.hit{background:var(--green);color:#fff}
+  #ecc .bonusrow{display:flex;justify-content:space-between;font-size:13px;border-top:2px dotted var(--ink);padding-top:5px;margin-top:5px}
+
+  #ecc textarea{font-family:ui-monospace,Menlo,monospace;font-size:11px;width:100%;height:120px;padding:8px;border:2.5px solid var(--ink);border-radius:4px;background:#fff;color:var(--ink);margin-bottom:9px}
+  #ecc input{font-family:var(--comic);font-size:15px;padding:8px;color:var(--ink);border:2.5px solid var(--ink);border-radius:4px;background:#fff;width:100%}
+  #ecc .row{display:flex;gap:6px;margin-bottom:9px;align-items:center}
+  #ecc .row .grow{flex:1;min-width:0}
+  #ecc .w66{width:66px;flex:0 0 66px}
+  #ecc .w52{width:52px;flex:0 0 52px}
+  #ecc .icbtn{font-family:var(--comic);font-size:22px;width:46px;flex:0 0 46px;height:40px;background:#fff;border:2.5px solid var(--ink);border-radius:4px;cursor:pointer;padding:0;overflow:hidden}
+  #ecc label{font-size:12px;color:#6B625A;display:block;margin-bottom:3px}
+  #ecc .addbox{border:3px dashed var(--ink);border-radius:4px;padding:10px;background:#FFFDF5;margin-bottom:6px}
+  #ecc .x{background:none;border:none;font-family:var(--comic);color:#B9B1A6;cursor:pointer;font-size:17px;padding:0 3px}
+  #ecc .sec{border-top:3px solid var(--ink);margin:22px 0 12px;padding-top:12px}
+
+  #ecc .hist{border-bottom:2px dotted #C9C2B6;padding:8px 0;display:flex;gap:9px;align-items:center;font-size:14px}
+  #ecc .hist .amt{margin-left:auto;font-size:15px;white-space:nowrap}
+  #ecc .plus{color:var(--green)} #ecc .minus{color:var(--red)}
+
+  #ecc .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--paper);border-radius:4px;padding:10px 16px;font-size:15px;z-index:60;box-shadow:3px 3px 0 rgba(0,0,0,.3);max-width:90%;text-align:center}
+  #ecc .syncline{font-size:12px;color:#6B625A;text-align:center;padding-bottom:6px}
+  #ecc .warn{background:var(--red);color:#fff;border:3px solid var(--ink);border-radius:4px;padding:9px;font-size:13px;margin-bottom:14px}
+
+  #ecc .sheet{position:fixed;inset:0;background:rgba(26,22,19,.55);z-index:70;display:flex;align-items:flex-end;justify-content:center}
+  #ecc .sheet .in{background:var(--paper);border:3px solid var(--ink);border-radius:6px 6px 0 0;padding:14px;width:100%;max-width:470px;max-height:78vh;overflow:auto}
+  #ecc .picks{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:14px}
+  #ecc .picks button{font-size:22px;padding:6px 0;background:#fff;border:2px solid var(--ink);border-radius:4px;cursor:pointer;font-family:var(--comic)}
+  #ecc .doodles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+  #ecc .doodles button{background:#fff;border:2.5px solid var(--ink);border-radius:4px;cursor:pointer;padding:6px}
+  #ecc .doodles svg{width:100%;height:auto;display:block}
+  @media (prefers-reduced-motion:reduce){#ecc .av.big.jump,#ecc .burst.on{animation:none}}
+</style>
+
+</head>
+<body>
+<div id="ecc">
+  <div class="logo"><div class="names">Ellisa &amp; Nathan</div><h1>Exercise Coin Club</h1><div class="sub">Two members. No excuses.<br>Fittest couple in Perla @Ara Sentral.</div></div>
+  <div class="strip"></div>
+  <div id="warnbox"></div>
+
+  <div class="panel">
+    <div class="burst" id="burst"></div>
+    <div class="hero">
+      <div class="balloon">
+        <div class="bal-name" id="balName">&nbsp;</div>
+        <div class="bal-coins" id="balCoins">–</div>
+      </div>
+      <div class="av big" id="heroAv">🐶</div>
+    </div>
+    <div class="ground"></div>
+
+    <div class="who" id="who"></div>
+    <div class="tabs" id="tabs">
+      <button data-tab="log" class="on">Log</button>
+      <button data-tab="shop">Rewards</button>
+      <button data-tab="hist">Diary</button>
+      <button data-tab="set">Setup</button>
+    </div>
+    <div id="view">Loading…</div>
+  </div>
+  <div id="sync" class="syncline"></div>
+</div>
+<div id="sheet"></div>
+
+<script>
+(function(){
+  /* ==================== CONNECTION SETTINGS ====================
+     Paste your Firebase Realtime Database URL between the quotes.
+     Copy it exactly from the Firebase console. It looks like:
+       https://something-default-rtdb.asia-southeast1.firebasedatabase.app
+     Leave SECRET alone unless you want a fresh, empty coin file.
+     ============================================================== */
+  var DB_URL = "";
+  var SECRET = "ec7k3q9v2m";
+  /* ============================================================== */
+
+  var LKEY='ecc-cache-v3', UKEY='ecc-dburl';
+  try{ var saved=localStorage.getItem(UKEY); if(saved) DB_URL=saved }catch(e){}
+  var online = !!DB_URL, netOk = true, dirty = false, mem = null;
+  function dbRef(){ return DB_URL.replace(/\/+$/,'')+'/coinclub/'+SECRET+'.json' }
+  function cacheGet(){ try{var v=localStorage.getItem(LKEY); return v?JSON.parse(v):null}catch(e){return null} }
+  function cacheSet(st){ try{localStorage.setItem(LKEY,JSON.stringify(st))}catch(e){} }
+  function status(){
+    var el=document.getElementById('sync'); if(!el) return;
+    if(!online){ el.textContent='No database set — coins save on this phone only.'; return }
+    if(dirty){ el.textContent='Waiting to sync…'; return }
+    el.textContent = netOk ? 'In sync. You both see the same coins.' : 'Offline. Saved here, will sync later.';
+  }
+
+  var EX_ICONS='🚶 🏃 🏋️ 🚴 🏊 🧘 🤸 🏸 🏀 ⚽ 🥊 🎾 🏓 🥋 🛹 🧗 💃 🕺 ⛹️ 🤾 🚣 ⛷️ 🏄 🦶'.split(' ');
+  var RW_ICONS='🍪 🎂 🍰 🧁 🍦 🍩 🍫 🍭 🧇 🥞 ☕ 🧋 🍜 🍕 🍟 🥟 🍣 🌮 🎁 🎈 🎟️ 🎬 🎮 🎧 📚 🧸 💆 🛌 😴 🛍️ 👟 💐 🌻 ❤️ 💌 🏖️ ✈️ 🚗 🎡 🎠 🪁 ⛱️ 🦴 🐶 🐾 🌟 🏆 👑'.split(' ');
+  var AV_ICONS='🐶 🐕 🦮 🐩 🐾 🦴 🐦 🐤 🐱 🐰 🧸 🥷 ⚔️ 🍥 🌸 🔥 ⚡ 🌙 ⭐ 🎈 🧢 👟 🏀 🥊'.split(' ');
+
+  // hand-drawn comic doodles (original artwork, comic-strip ink style)
+  var DOODLES={
+    beagle:'<svg viewBox="0 0 100 100"><path d="M22 30 q-16 6 -18 26 q-2 15 13 16 q12 0 13-16z" fill="#1A1613"/><path d="M78 30 q16 6 18 26 q2 15 -13 16 q-12 0 -13-16z" fill="#1A1613"/><ellipse cx="50" cy="44" rx="30" ry="27" fill="#fff" stroke="#1A1613" stroke-width="4"/><ellipse cx="39" cy="40" rx="3.4" ry="4.4" fill="#1A1613"/><ellipse cx="61" cy="40" rx="3.4" ry="4.4" fill="#1A1613"/><ellipse cx="50" cy="55" rx="8" ry="6.2" fill="#1A1613"/><path d="M50 61 q-10 11 -18 2" fill="none" stroke="#1A1613" stroke-width="3.4" stroke-linecap="round"/><path d="M50 61 q10 11 18 2" fill="none" stroke="#1A1613" stroke-width="3.4" stroke-linecap="round"/><rect x="30" y="70" width="40" height="9" rx="4.5" fill="#D8342A" stroke="#1A1613" stroke-width="3.4"/><circle cx="50" cy="82" r="4.5" fill="#FFC61E" stroke="#1A1613" stroke-width="3"/></svg>',
+    bird:'<svg viewBox="0 0 100 100"><path d="M44 22 l3 -12 4 11z M52 20 l6 -11 1 12z M60 24 l9 -8 -3 11z" fill="#1A1613"/><ellipse cx="52" cy="52" rx="26" ry="24" fill="#FFC61E" stroke="#1A1613" stroke-width="4"/><path d="M30 52 q-14 6 -16 16 q14 4 22 -6z" fill="#FFC61E" stroke="#1A1613" stroke-width="3.6"/><circle cx="45" cy="46" r="3.4" fill="#1A1613"/><circle cx="59" cy="46" r="3.4" fill="#1A1613"/><path d="M52 55 l10 5 -10 5z" fill="#D8342A" stroke="#1A1613" stroke-width="2.6"/><path d="M44 78 v9 M60 78 v9" stroke="#1A1613" stroke-width="3.6" stroke-linecap="round"/></svg>',
+    cat:'<svg viewBox="0 0 100 100"><path d="M22 34 l2 -22 18 12z M78 34 l-2 -22 -18 12z" fill="#1A1613"/><ellipse cx="50" cy="50" rx="30" ry="26" fill="#fff" stroke="#1A1613" stroke-width="4"/><path d="M38 44 l8 4 -8 4 M62 44 l-8 4 8 4" fill="none" stroke="#1A1613" stroke-width="3.4" stroke-linecap="round"/><path d="M50 58 l-5 4 5 3 5-3z" fill="#EE9BB4" stroke="#1A1613" stroke-width="2.4"/><path d="M14 50 h14 M14 58 h14 M86 50 h-14 M86 58 h-14" stroke="#1A1613" stroke-width="2.6" stroke-linecap="round"/><path d="M44 68 q6 6 12 0" fill="none" stroke="#1A1613" stroke-width="3" stroke-linecap="round"/></svg>',
+    bunny:'<svg viewBox="0 0 100 100"><ellipse cx="36" cy="24" rx="9" ry="22" fill="#fff" stroke="#1A1613" stroke-width="4"/><ellipse cx="64" cy="24" rx="9" ry="22" fill="#fff" stroke="#1A1613" stroke-width="4"/><ellipse cx="36" cy="24" rx="3.6" ry="13" fill="#EE9BB4"/><ellipse cx="64" cy="24" rx="3.6" ry="13" fill="#EE9BB4"/><ellipse cx="50" cy="62" rx="27" ry="24" fill="#fff" stroke="#1A1613" stroke-width="4"/><circle cx="40" cy="58" r="3.4" fill="#1A1613"/><circle cx="60" cy="58" r="3.4" fill="#1A1613"/><path d="M50 66 l-4 4 4 3 4-3z" fill="#EE9BB4" stroke="#1A1613" stroke-width="2.4"/><path d="M50 73 q-7 6 -12 1 M50 73 q7 6 12 1" fill="none" stroke="#1A1613" stroke-width="3" stroke-linecap="round"/></svg>',
+    pup:'<svg viewBox="0 0 100 100"><path d="M20 36 q-14 12 -8 30 q10 6 18 -6z" fill="#8B5A2B" stroke="#1A1613" stroke-width="3.6"/><path d="M80 36 q14 12 8 30 q-10 6 -18 -6z" fill="#8B5A2B" stroke="#1A1613" stroke-width="3.6"/><ellipse cx="50" cy="50" rx="29" ry="26" fill="#F6E7CE" stroke="#1A1613" stroke-width="4"/><ellipse cx="39" cy="46" rx="3.4" ry="4.2" fill="#1A1613"/><ellipse cx="61" cy="46" rx="3.4" ry="4.2" fill="#1A1613"/><ellipse cx="50" cy="60" rx="7.5" ry="5.8" fill="#1A1613"/><path d="M50 66 q-9 10 -16 2 M50 66 q9 10 16 2" fill="none" stroke="#1A1613" stroke-width="3.2" stroke-linecap="round"/><path d="M64 72 q10 4 8 12" fill="none" stroke="#1A1613" stroke-width="3.4" stroke-linecap="round"/></svg>',
+    duck:'<svg viewBox="0 0 100 100"><ellipse cx="50" cy="54" rx="28" ry="25" fill="#fff" stroke="#1A1613" stroke-width="4"/><path d="M20 30 q6 -14 22 -10" fill="none" stroke="#1A1613" stroke-width="3.6" stroke-linecap="round"/><circle cx="42" cy="48" r="3.4" fill="#1A1613"/><circle cx="58" cy="48" r="3.4" fill="#1A1613"/><path d="M36 58 q14 -3 28 0 q-4 10 -14 10 q-10 0 -14 -10z" fill="#FFC61E" stroke="#1A1613" stroke-width="3.2"/><path d="M40 80 l-6 8 M60 80 l6 8" stroke="#FFC61E" stroke-width="4" stroke-linecap="round"/></svg>',
+    star:'<svg viewBox="0 0 100 100"><path d="M50 8 l11 26 28 2 -21 19 6 27 -24-14 -24 14 6-27 -21-19 28-2z" fill="#FFC61E" stroke="#1A1613" stroke-width="4" stroke-linejoin="round"/><circle cx="42" cy="48" r="3" fill="#1A1613"/><circle cx="58" cy="48" r="3" fill="#1A1613"/><path d="M43 58 q7 6 14 0" fill="none" stroke="#1A1613" stroke-width="3" stroke-linecap="round"/></svg>',
+    bone:'<svg viewBox="0 0 100 100"><circle cx="22" cy="34" r="12" fill="#fff" stroke="#1A1613" stroke-width="4"/><circle cx="22" cy="58" r="12" fill="#fff" stroke="#1A1613" stroke-width="4"/><circle cx="78" cy="34" r="12" fill="#fff" stroke="#1A1613" stroke-width="4"/><circle cx="78" cy="58" r="12" fill="#fff" stroke="#1A1613" stroke-width="4"/><rect x="20" y="36" width="60" height="20" fill="#fff" stroke="#1A1613" stroke-width="4"/><rect x="26" y="40" width="48" height="12" fill="#fff"/></svg>'
+  };
+
+  var DEF={
+    v:3, m2:1,
+    players:[
+      {id:'b',name:'Ellisa',av:{t:'d',v:'beagle'},coins:0},
+      {id:'a',name:'Nathan',av:{t:'d',v:'star'},coins:0}
+    ],
+    ex:[
+      {id:'e1',ic:'🚶',nm:'Walk',mins:30,coins:1},
+      {id:'e2',ic:'🏃',nm:'Run',mins:30,coins:2},
+      {id:'e3',ic:'🏋️',nm:'Gym',mins:45,coins:3},
+      {id:'e4',ic:'🧘',nm:'Yoga',mins:20,coins:1},
+      {id:'e5',ic:'🤸',nm:'Home workout',mins:15,coins:1},
+      {id:'e6',ic:'🚴',nm:'Cycling',mins:60,coins:3}
+    ],
+    rewards:[
+      {id:'r1',ic:'🍰',nm:'Cookie crumbs cake',cost:4},
+      {id:'r2',ic:'🍦',nm:'Ice cream',cost:2},
+      {id:'r3',ic:'💆',nm:'Shoulder rub',cost:3},
+      {id:'r4',ic:'🎬',nm:'You pick the movie',cost:3}
+    ],
+    streaks:[{id:'s1',days:3,coins:1},{id:'s2',days:5,coins:2},{id:'s3',days:7,coins:4}],
+    log:[]
+  };
+
+  var S=null, cur='a', tab='log', sheet=null, busy=false;
+  var CHEERS=['Woof!','Nice one.','Good grief, look at you.','Zoom!','That counts.','Attaboy.'];
+
+  function uid(){return Math.random().toString(36).slice(2,9)}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]})}
+  function dayKey(ts){var d=new Date(ts);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+  function monday(t){var d=new Date(t);var w=(d.getDay()+6)%7;d.setHours(0,0,0,0);d.setDate(d.getDate()-w);return d}
+  function weekKey(t){return dayKey(monday(t||Date.now()))}
+  function coinTxt(n){return n+' coin'+(Math.abs(n)===1?'':'s')}
+
+  function toast(m){
+    var o=document.getElementById('t1'); if(o)o.remove();
+    var t=document.createElement('div'); t.className='toast'; t.id='t1'; t.textContent=m;
+    document.getElementById('ecc').appendChild(t);
+    setTimeout(function(){if(t.parentNode)t.remove()},2600);
+  }
+
+  async function load(){
+    if(online){
+      try{
+        var r=await fetch(dbRef()+'?t='+Date.now(),{cache:'no-store'});
+        if(r.ok){
+          var j=await r.json();
+          netOk=true; status();
+          if(j&&j.players){ cacheSet(j); return j }
+          return cacheGet()||JSON.parse(JSON.stringify(DEF));   // database still empty
+        }
+        netOk=false;
+      }catch(e){ netOk=false }
+      status();
+    }
+    return cacheGet()||mem||JSON.parse(JSON.stringify(DEF));
+  }
+  async function save(st){
+    mem=st; cacheSet(st);                                       // this phone first, always
+    if(!online){ dirty=false; status(); return }
+    try{
+      var r=await fetch(dbRef(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(st)});
+      netOk=r.ok; dirty=!r.ok;
+      if(!r.ok) toast('Saved here only — the database refused it. Check your rules.');
+    }catch(e){ netOk=false; dirty=true; toast('No connection. Saved on this phone for now.') }
+    status();
+  }
+  async function mutate(fn,quiet){var fresh=await load();S=fresh;fn(fresh);await save(fresh);if(!quiet)render()}
+
+  function P(id){return S.players.filter(function(p){return p.id===id})[0]}
+  // brings older saved data up to date: real names, Ellisa on the left
+  function migrate(st){
+    if(st.m2) return false;
+    st.m2=1;
+    st.players.forEach(function(p){
+      if(p.name==='Me') p.name='Nathan';
+      else if(p.name==='Her') p.name='Ellisa';
+    });
+    for(var i=1;i<st.players.length;i++){
+      if(st.players[i].name==='Ellisa'){ st.players.unshift(st.players.splice(i,1)[0]); break }
+    }
+    return true;
+  }
+  function avInner(av){
+    if(!av) return '🐾';
+    if(av.t==='i') return '<img src="'+esc(av.v)+'" alt="">';
+    if(av.t==='d') return DOODLES[av.v]||DOODLES.beagle;
+    return esc(av.v||'🐾');
+  }
+  function avHTML(av,cls){return '<span class="av '+cls+'">'+avInner(av)+'</span>'}
+  function daysThisWeek(pid){
+    var wk=weekKey(),set={};
+    S.log.forEach(function(e){if(e.kind==='work'&&e.pid===pid&&weekKey(e.ts)===wk)set[dayKey(e.ts)]=1});
+    return Object.keys(set);
+  }
+  function awarded(pid){
+    var wk=weekKey(),o={};
+    S.log.forEach(function(e){if(e.kind==='bonus'&&e.pid===pid&&e.wk===wk)o[e.days]=1});
+    return o;
+  }
+
+  /* ---------- photo to sticker ---------- */
+  function d2(d,i,r,g,b){var a=d[i*4]-r,c=d[i*4+1]-g,e=d[i*4+2]-b;return a*a+c*c+e*e}
+
+  function dpx(d,i,j){var a=d[i*4]-d[j*4],b=d[i*4+1]-d[j*4+1],c=d[i*4+2]-d[j*4+2];return a*a+b*b+c*c}
+
+  // Flood the background in from the frame edge.
+  // mode 0: every pixel compared to the corner colour (flat backgrounds).
+  // mode 1: every pixel compared to the neighbour it spread from (gradients).
+  function fillMask(d,W,H,mode,param,ref){
+    var N=W*H, keep=new Uint8Array(N), seen=new Uint8Array(N), st=new Int32Array(N), sp=0, tol=param*param*3;
+    keep.fill(1);
+    function push(i){ if(i>=0&&i<N&&!seen[i]){seen[i]=1;st[sp++]=i} }
+    for(var x=0;x<W;x++){push(x);push((H-1)*W+x)}
+    for(var y=0;y<H;y++){push(y*W);push(y*W+W-1)}
+    while(sp){
+      var i=st[--sp], xx=i%W;
+      if(mode===0){
+        if(d2(d,i,ref[0],ref[1],ref[2])>tol) continue;
+        keep[i]=0;
+        push(i-W); push(i+W);
+        if(xx>0)push(i-1); if(xx<W-1)push(i+1);
+      }else{
+        keep[i]=0;
+        if(i-W>=0&&dpx(d,i,i-W)<tol) push(i-W);
+        if(i+W<N&&dpx(d,i,i+W)<tol) push(i+W);
+        if(xx>0&&dpx(d,i,i-1)<tol) push(i-1);
+        if(xx<W-1&&dpx(d,i,i+1)<tol) push(i+1);
+      }
+    }
+    return keep;
+  }
+
+  // The subject is the biggest connected piece. Everything else that survived the
+  // fill is a logo, a watermark or a stray corner, and gets dropped.
+  function biggestBlob(keep,W,H){
+    var N=W*H, lab=new Int32Array(N), st=new Int32Array(N), cur=0, best=0, bestArea=0, total=0;
+    for(var s=0;s<N;s++){
+      if(!keep[s]||lab[s]) continue;
+      cur++; var sp=0, area=0; st[sp++]=s; lab[s]=cur;
+      while(sp){
+        var i=st[--sp]; area++;
+        var xx=i%W;
+        if(i-W>=0&&keep[i-W]&&!lab[i-W]){lab[i-W]=cur;st[sp++]=i-W}
+        if(i+W<N&&keep[i+W]&&!lab[i+W]){lab[i+W]=cur;st[sp++]=i+W}
+        if(xx>0&&keep[i-1]&&!lab[i-1]){lab[i-1]=cur;st[sp++]=i-1}
+        if(xx<W-1&&keep[i+1]&&!lab[i+1]){lab[i+1]=cur;st[sp++]=i+1}
+      }
+      total+=area;
+      if(area>bestArea){bestArea=area;best=cur}
+    }
+    if(!best) return null;
+    var mask=new Uint8Array(N);
+    for(var k=0;k<N;k++) if(lab[k]===best) mask[k]=1;
+    return {mask:mask,area:bestArea,total:total};
+  }
+
+  // Try the safest strategy first and only accept a result that passes every check.
+  // Returns ImageData, or null meaning "leave this picture alone".
+  function knockout(g,base,W,H){
+    var N=W*H, d=base.data, i;
+    var cor=[0,W-1,(H-1)*W,(H-1)*W+W-1], clear=0;
+    cor.forEach(function(k){if(d[k*4+3]<20)clear++});
+    if(clear>=3) return null;                                  // already transparent
+    var r0=0,g0=0,b0=0;
+    cor.forEach(function(k){r0+=d[k*4];g0+=d[k*4+1];b0+=d[k*4+2]});
+    var ref=[r0/4,g0/4,b0/4];
+
+    var plans=[[0,22],[0,13],[0,7],[1,10],[1,16],[1,24]];
+    for(var p=0;p<plans.length;p++){
+      var mode=plans[p][0], param=plans[p][1];
+      var keep=fillMask(d,W,H,mode,param,ref);
+      var solid=0; for(i=0;i<N;i++) solid+=keep[i];
+      var removed=1-solid/N;
+      if(removed<0.12) continue;                               // barely touched anything
+
+      if(mode===0){                                            // did the fill eat the figure?
+        var want=0, tol=param*param*3;
+        for(i=0;i<N;i++) if(d2(d,i,ref[0],ref[1],ref[2])>tol) want++;
+        if(solid<want*0.88) continue;
+      }
+      var ec=0, es=0;                                          // frame edge should be clear now
+      for(var x=0;x<W;x++){ec+=2; es+=keep[x]+keep[(H-1)*W+x]}
+      for(var y=0;y<H;y++){ec+=2; es+=keep[y*W]+keep[y*W+W-1]}
+      if(es/ec>0.15) continue;
+
+      var b=biggestBlob(keep,W,H); if(!b) continue;
+      var keptf=b.area/N, blobf=b.area/Math.max(b.total,1);
+      if(keptf<0.02||keptf>0.8||blobf<0.45) continue;          // confetti, or almost nothing left
+
+      var out=g.createImageData(W,H); out.data.set(d);
+      var o=out.data;
+      for(i=0;i<N;i++) if(!b.mask[i]) o[i*4+3]=0;
+      return out;
+    }
+    return null;
+  }
+
+  function cutAndTrim(src,cut,zoom,cb){
+    var img=new Image();
+    img.onload=function(){
+      var W=Math.min(360,img.width), H=Math.max(1,Math.round(img.height*W/img.width));
+      var c=document.createElement('canvas'); c.width=W; c.height=H;
+      var g=c.getContext('2d'); g.drawImage(img,0,0,W,H);
+
+      var base=null; try{ base=g.getImageData(0,0,W,H) }catch(e){}
+      var done=null;
+      if(cut&&base){ try{ done=knockout(g,base,W,H) }catch(e){ done=null } if(done) g.putImageData(done,0,0) }
+
+      // crop to the figure: by transparency if we have it, otherwise by colour
+      var x0=W,y0=H,x1=-1,y1=-1, N=W*H, i, px, py;
+      var dd=null; try{ dd=g.getImageData(0,0,W,H).data }catch(e){}
+      if(dd){
+        var anyClear=false;
+        for(i=0;i<N;i++) if(dd[i*4+3]<20){anyClear=true;break}
+        var cr=dd[0],cg=dd[1],cb2=dd[2], tol2=40*40;
+        for(i=0;i<N;i++){
+          var solid = anyClear ? dd[i*4+3]>20 : d2(dd,i,cr,cg,cb2)>tol2;
+          if(solid){ px=i%W; py=(i-px)/W; if(px<x0)x0=px; if(px>x1)x1=px; if(py<y0)y0=py; if(py>y1)y1=py }
+        }
+      }
+      if(x1<=x0||y1<=y0){x0=0;y0=0;x1=W-1;y1=H-1}
+      var pad=Math.round(Math.max(x1-x0,y1-y0)*0.03);
+      x0=Math.max(0,x0-pad); y0=Math.max(0,y0-pad);
+      x1=Math.min(W-1,x1+pad); y1=Math.min(H-1,y1+pad);
+
+      var bw=x1-x0+1, bh=y1-y0+1, side=Math.max(bw,bh);
+      var out=document.createElement('canvas'); out.width=out.height=256;
+      var og=out.getContext('2d');
+      var sc=(256/side)*(zoom||1)*0.97;
+      og.drawImage(c,x0,y0,bw,bh,(256-bw*sc)/2,(256-bh*sc)/2,bw*sc,bh*sc);
+      cb(out.toDataURL('image/png'), !!done);
+    };
+    img.onerror=function(){toast('That image would not open.')};
+    img.src=src;
+  }
+  function readFile(f,cb){
+    var fr=new FileReader();
+    fr.onload=function(){
+      // keep a modest original so cutout and zoom can be redone
+      var img=new Image();
+      img.onload=function(){
+        var W=Math.min(360,img.width), H=Math.round(img.height*W/img.width);
+        var c=document.createElement('canvas'); c.width=W; c.height=H;
+        c.getContext('2d').drawImage(img,0,0,W,H);
+        cb(c.toDataURL('image/jpeg',.86));
+      };
+      img.onerror=function(){toast('That image would not open.')};
+      img.src=fr.result;
+    };
+    fr.onerror=function(){toast('Could not read that file.')};
+    fr.readAsDataURL(f);
+  }
+  function setPhoto(pid,raw,cut,zoom){
+    busy=true; toast('Trimming the picture…');
+    cutAndTrim(raw,cut,zoom,function(url,didCut){
+      busy=false;
+      mutate(function(st){
+        var p=st.players.filter(function(x){return x.id===pid})[0];
+        if(p) p.av={t:'i',v:url,raw:raw,cut:cut,zoom:zoom};
+      });
+      if(cut&&!didCut) toast('Kept the background — cutting it would have eaten the picture.');
+    });
+  }
+
+  /* ---------- views ---------- */
+  function vLog(){
+    var p=P(cur), h='<h2>Tap what you did</h2>';
+    if(!S.ex.length) h+='<p class="muted">No exercises yet. Open Setup and add the ones you actually do.</p>';
+    h+='<div class="grid">';
+    S.ex.forEach(function(e){
+      h+='<button class="card" data-log="'+e.id+'"><span class="ic">'+esc(e.ic)+'</span>'+esc(e.nm)+
+         '<span class="mn">'+(e.mins?e.mins+' min':'&nbsp;')+'</span><span class="cn">+'+e.coins+'</span></button>';
+    });
+    h+='</div><p class="muted" style="margin-top:10px">Logs go to '+esc(p.name)+'. Tapped the wrong one? Delete it in the diary.</p>';
+
+    var hit=daysThisWeek(cur), aw=awarded(cur), nm=['M','T','W','T','F','S','S'], mon=monday(Date.now());
+    h+='<div class="sec"></div><h2>This week</h2><div class="week">';
+    for(var i=0;i<7;i++){
+      var d=new Date(mon); d.setDate(d.getDate()+i);
+      var on=hit.indexOf(dayKey(d))>=0;
+      h+='<div class="day'+(on?' hit':'')+'">'+(on?'✓':nm[i])+'</div>';
+    }
+    h+='</div>';
+    if(!S.streaks.length) h+='<p class="muted">No streak rewards set. Add some in Setup.</p>';
+    S.streaks.slice().sort(function(a,b){return a.days-b.days}).forEach(function(b){
+      var got=!!aw[b.days];
+      h+='<div class="bonusrow"><span>'+(got?'✓ ':'')+b.days+' active days</span><span>'+(got?'paid ':'')+'+'+b.coins+'</span></div>';
+    });
+    h+='<p class="muted" style="margin-top:8px">A day counts once however many times you log it. Week restarts Monday.</p>';
+    return h;
+  }
+
+  function vShop(){
+    var p=P(cur), h='<h2>'+esc(p.name)+' has '+coinTxt(p.coins)+'</h2>';
+    if(!S.rewards.length) h+='<p class="muted">No rewards yet. Add the first one below.</p>';
+    S.rewards.forEach(function(r){
+      var ok=p.coins>=r.cost;
+      h+='<div class="rw"><span class="em">'+esc(r.ic)+'</span><span class="nm">'+esc(r.nm)+
+         '<small>'+coinTxt(r.cost)+(ok?'':' · '+(r.cost-p.coins)+' to go')+'</small></span>'+
+         '<button class="btn" data-buy="'+r.id+'"'+(ok?'':' disabled')+'>Redeem</button>'+
+         '<button class="x" data-delrw="'+r.id+'" title="remove">✕</button></div>';
+    });
+    h+='<div class="addbox" style="margin-top:14px"><h2>Add a reward</h2><div class="row">'+
+       '<button class="icbtn" data-pick="rw-new">'+esc(newIc.rw)+'</button>'+
+       '<input class="grow" id="rNm" placeholder="What they get"><input class="w66" id="rCost" type="number" min="1" placeholder="coins"></div>'+
+       '<button class="btn ghost wide" id="rAdd">Add reward</button></div>';
+
+    var pend=S.log.filter(function(e){return e.kind==='rw'&&!e.done});
+    h+='<div class="sec"></div><h2>Still owed</h2>';
+    if(!pend.length) h+='<p class="muted">Nothing outstanding. Go spend some coins.</p>';
+    pend.sort(function(a,b){return a.ts-b.ts}).forEach(function(e){
+      h+='<div class="rw"><span class="em">'+esc(e.ic)+'</span><span class="nm">'+esc(e.nm)+
+         '<small>for '+esc(P(e.pid)?P(e.pid).name:'?')+' · '+dayKey(e.ts)+'</small></span>'+
+         '<button class="btn dark" data-done="'+e.id+'">Got it</button></div>';
+    });
+    return h;
+  }
+
+  function vHist(){
+    var h='<h2>The diary</h2>';
+    if(!S.log.length) return h+'<p class="muted">Empty. Log a workout and it turns up here.</p>';
+    S.log.slice().sort(function(a,b){return b.ts-a.ts}).slice(0,80).forEach(function(e){
+      var who=P(e.pid)?P(e.pid).name:'?', ic,txt,amt;
+      if(e.kind==='work'){ic=e.ic;txt=esc(who)+' · '+esc(e.nm)+(e.mins?' '+e.mins+'m':'');amt='<span class="plus">+'+e.coins+'</span>'}
+      else if(e.kind==='bonus'){ic='🔥';txt=esc(who)+' · '+e.days+'-day week';amt='<span class="plus">+'+e.coins+'</span>'}
+      else{ic=e.ic;txt=esc(who)+' · '+esc(e.nm)+(e.done?'':' (pending)');amt='<span class="minus">−'+e.cost+'</span>'}
+      h+='<div class="hist"><span style="font-size:19px">'+esc(ic)+'</span><span>'+txt+
+         '<br><span class="muted">'+dayKey(e.ts)+'</span></span><span class="amt">'+amt+
+         ' <button class="x" data-undo="'+e.id+'" title="delete">✕</button></span></div>';
+    });
+    h+='<p class="muted" style="margin-top:10px">Deleting an entry puts the coins back.</p>';
+    return h;
+  }
+
+  function vSet(){
+    var h='<h2>The two of you</h2>';
+    S.players.forEach(function(p){
+      h+='<div class="row">'+avHTML(p.av,'md')+
+         '<input class="grow" data-f="nm" data-p="'+p.id+'" value="'+esc(p.name)+'" maxlength="14">'+
+         '<input class="w66" data-f="coins" data-p="'+p.id+'" type="number" min="0" value="'+p.coins+'"></div>';
+      h+='<div class="row"><button class="btn ghost grow" data-pick="av-'+p.id+'">Pick a character</button>'+
+         '<label class="btn ghost" style="margin:0;font-size:13px">Use a photo<input type="file" accept="image/*" data-photo="'+p.id+'" style="display:none"></label></div>';
+      if(p.av&&p.av.t==='i'&&p.av.raw){
+        h+='<div class="row" style="margin-bottom:16px"><span class="muted grow">Picture fit</span>'+
+           '<button class="btn tiny ghost" data-zoom="'+p.id+'|-">smaller</button>'+
+           '<button class="btn tiny ghost" data-zoom="'+p.id+'|+">bigger</button>'+
+           '<button class="btn tiny'+(p.av.cut?'':' ghost')+'" data-cut="'+p.id+'">cutout '+(p.av.cut?'on':'off')+'</button></div>';
+      } else h+='<div style="height:7px"></div>';
+    });
+    h+='<p class="muted">Pictures get their background cut away so they sit on the page like a sticker. If the cutout eats too much, turn the background back on.</p>';
+
+    h+='<div class="sec"></div><h2>Exercises and their coins</h2>';
+    S.ex.forEach(function(e){
+      h+='<div class="row"><button class="icbtn" data-pick="ex-'+e.id+'">'+esc(e.ic)+'</button>'+
+         '<input class="grow" data-f="exnm" data-i="'+e.id+'" value="'+esc(e.nm)+'" maxlength="24">'+
+         '<input class="w52" data-f="exmins" data-i="'+e.id+'" type="number" min="0" value="'+e.mins+'">'+
+         '<input class="w52" data-f="excoins" data-i="'+e.id+'" type="number" min="0" value="'+e.coins+'">'+
+         '<button class="x" data-delex="'+e.id+'">✕</button></div>';
+    });
+    h+='<div class="row"><span class="grow"></span><label class="w52" style="margin:0;text-align:center">min</label><label class="w52" style="margin:0;text-align:center">coins</label><span style="width:22px"></span></div>';
+    h+='<div class="addbox"><div class="row"><button class="icbtn" data-pick="ex-new">'+esc(newIc.ex)+'</button>'+
+       '<input class="grow" id="exNm" placeholder="New exercise">'+
+       '<input class="w52" id="exMins" type="number" min="0" placeholder="min">'+
+       '<input class="w52" id="exCoins" type="number" min="0" placeholder="🪙"></div>'+
+       '<button class="btn ghost wide" id="exAdd">Add exercise</button></div>';
+
+    h+='<div class="sec"></div><h2>Weekly streak rewards</h2>';
+    if(!S.streaks.length) h+='<p class="muted">None yet.</p>';
+    S.streaks.slice().sort(function(a,b){return a.days-b.days}).forEach(function(b){
+      h+='<div class="row"><input class="w52" data-f="stdays" data-i="'+b.id+'" type="number" min="1" max="7" value="'+b.days+'">'+
+         '<span class="grow">active days in a week</span>'+
+         '<input class="w52" data-f="stcoins" data-i="'+b.id+'" type="number" min="0" value="'+b.coins+'">'+
+         '<button class="x" data-delst="'+b.id+'">✕</button></div>';
+    });
+    h+='<div class="addbox"><div class="row"><input class="w52" id="stDays" type="number" min="1" max="7" placeholder="days">'+
+       '<span class="grow">active days in a week</span><input class="w52" id="stCoins" type="number" min="0" placeholder="🪙"></div>'+
+       '<button class="btn ghost wide" id="stAdd">Add streak reward</button></div>';
+
+    h+='<div class="sec"></div><p class="muted">Edits save as soon as you tap away from a box. Everything is shared, so you both see the same numbers, and so does anyone with this link.</p>';
+    h+='<button class="btn ghost" id="wipe">Start the challenge over</button>';
+
+    h+='<div class="sec"></div><h2>Database</h2>';
+    if(online){
+      h+='<p class="muted">Connected to:<br>'+esc(DB_URL)+'</p>';
+      h+='<div class="row"><input class="grow" id="dbIn" value="'+esc(DB_URL)+'"><button class="btn" id="dbSave">Change</button></div>';
+    }else{
+      h+='<p class="muted">Paste your Firebase Realtime Database URL here and the two of you share one coin file. Leave it empty and everything stays on this phone.</p>';
+      h+='<div class="row"><input class="grow" id="dbIn" placeholder="https://....firebasedatabase.app"><button class="btn" id="dbSave">Connect</button></div>';
+    }
+
+    h+='<div class="sec"></div><h2>Backup</h2>';
+    h+='<p class="muted">Copy this text somewhere safe now and then. If the app ever loses its data, paste it back in and everything returns.</p>';
+    h+='<textarea id="bkBox" readonly>'+esc(JSON.stringify(S))+'</textarea>';
+    h+='<p class="muted">To restore, replace the text above with your backup and tap below.</p>';
+    h+='<button class="btn ghost" id="bkRestore">Restore from the text above</button>';
+    return h;
+  }
+
+  function render(){
+    var p=P(cur)||S.players[0]; cur=p.id;
+    document.getElementById('balName').textContent=p.name+' has';
+    document.getElementById('balCoins').innerHTML=p.coins+' <span>coin'+(p.coins===1?'':'s')+'</span>';
+    document.getElementById('heroAv').innerHTML=avInner(p.av);
+
+    var w='';
+    S.players.forEach(function(x){
+      w+='<button data-who="'+x.id+'" class="'+(x.id===cur?'on':'')+'">'+avHTML(x.av,'sm')+
+         '<span>'+esc(x.name)+'<small>'+x.coins+'</small></span></button>';
+    });
+    document.getElementById('who').innerHTML=w;
+    Array.prototype.forEach.call(document.querySelectorAll('#tabs button'),function(b){b.className=(b.dataset.tab===tab?'on':'')});
+    document.getElementById('view').innerHTML=tab==='log'?vLog():tab==='shop'?vShop():tab==='hist'?vHist():vSet();
+    drawSheet();
+  }
+
+  function bang(n){
+    var b=document.getElementById('burst');
+    b.innerHTML='<svg viewBox="0 0 120 120"><path d="M60 4 l9 20 20-13 -4 24 24 4 -18 16 18 16 -24 4 4 24 -20-13 -9 20 -9-20 -20 13 4-24 -24-4 18-16 -18-16 24-4 -4-24 20 13z" fill="'+
+      '#FFC61E" stroke="#1A1613" stroke-width="4" stroke-linejoin="round"/><text x="60" y="70" font-family="'+
+      "Chalkboard SE,Comic Sans MS,cursive"+'" font-size="30" text-anchor="middle" fill="#1A1613">+'+n+'</text></svg>';
+    b.classList.remove('on'); void b.offsetWidth; b.classList.add('on');
+    var av=document.getElementById('heroAv');
+    av.classList.remove('jump'); void av.offsetWidth; av.classList.add('jump');
+  }
+
+  /* ---------- pickers ---------- */
+  var newIc={ex:'🏃',rw:'🎁'};
+  function drawSheet(){
+    var box=document.getElementById('sheet');
+    if(!sheet){box.innerHTML='';return}
+    var isAv=sheet.slice(0,3)==='av-';
+    var set=isAv?AV_ICONS:(sheet.slice(0,3)==='ex-'?EX_ICONS:RW_ICONS);
+    var h='<div class="sheet" data-close="1"><div class="in"><h2>'+(isAv?'Pick a character':'Pick an icon')+'</h2>';
+    if(isAv){
+      h+='<div class="doodles">';
+      Object.keys(DOODLES).forEach(function(k){h+='<button data-dood="'+k+'">'+DOODLES[k]+'</button>'});
+      h+='</div>';
+    }
+    h+='<div class="picks">';
+    set.forEach(function(e){h+='<button data-set="'+esc(e)+'">'+e+'</button>'});
+    h+='</div><button class="btn ghost wide" data-close="1">Close</button></div></div>';
+    box.innerHTML=h;
+  }
+  function applyIcon(val,isDoodle){
+    var kind=sheet.slice(0,3), id=sheet.slice(3);
+    if(kind==='av-'){
+      mutate(function(st){var p=st.players.filter(function(x){return x.id===id})[0]; if(p)p.av=isDoodle?{t:'d',v:val}:{t:'e',v:val}});
+    } else if(kind==='ex-'){
+      if(id==='new'){newIc.ex=val;sheet=null;render();return}
+      mutate(function(st){var e=st.ex.filter(function(x){return x.id===id})[0]; if(e)e.ic=val});
+    } else {
+      if(id==='new'){newIc.rw=val;sheet=null;render();return}
+      mutate(function(st){var r=st.rewards.filter(function(x){return x.id===id})[0]; if(r)r.ic=val});
+    }
+    sheet=null;
+  }
+
+  /* ---------- events ---------- */
+  function num(el,fb){var v=parseFloat(el&&el.value);return isNaN(v)?fb:v}
+
+  document.body.addEventListener('click',function(ev){
+    var t=ev.target.closest('button,[data-close]'); if(!t) return;
+    var d=t.dataset||{};
+
+    if(d.dood!==undefined&&sheet){applyIcon(d.dood,true);return}
+    if(d.set!==undefined&&sheet){applyIcon(d.set,false);return}
+    if(d.close){sheet=null;drawSheet();return}
+    if(d.pick){sheet=d.pick;drawSheet();return}
+    if(!document.getElementById('ecc').contains(t)) return;
+
+    if(d.who){cur=d.who;render();return}
+    if(d.tab){tab=d.tab;render();return}
+
+    if(d.zoom){
+      var zp=d.zoom.split('|'), pl2=P(zp[0]);
+      if(!pl2||!pl2.av.raw||busy) return;
+      var z=Math.max(.6,Math.min(2.2,(pl2.av.zoom||1)+(zp[1]==='+'?.18:-.18)));
+      setPhoto(zp[0],pl2.av.raw,pl2.av.cut,z); return;
+    }
+    if(d.cut){
+      var pl3=P(d.cut); if(!pl3||!pl3.av.raw||busy) return;
+      setPhoto(d.cut,pl3.av.raw,!pl3.av.cut,pl3.av.zoom||1); return;
+    }
+
+    if(d.log){
+      var pid=cur;
+      mutate(function(st){
+        S=st;
+        var e=st.ex.filter(function(x){return x.id===d.log})[0]; if(!e) return;
+        var pl=st.players.filter(function(x){return x.id===pid})[0];
+        st.log.push({id:uid(),kind:'work',pid:pid,ts:Date.now(),nm:e.nm,ic:e.ic,mins:e.mins,coins:e.coins});
+        pl.coins+=e.coins;
+        S=st;
+        var days=daysThisWeek(pid).length, aw=awarded(pid), extra=0;
+        st.streaks.forEach(function(b){
+          if(days>=b.days&&!aw[b.days]&&b.coins>0){
+            st.log.push({id:uid(),kind:'bonus',pid:pid,ts:Date.now(),days:b.days,coins:b.coins,wk:weekKey()});
+            pl.coins+=b.coins; extra+=b.coins;
+          }
+        });
+        bang(e.coins+extra);
+        toast(extra?('Streak! +'+(e.coins+extra)+' coins.'):(CHEERS[Math.floor(Math.random()*CHEERS.length)]+' +'+coinTxt(e.coins)));
+      });
+      return;
+    }
+
+    if(d.buy){
+      mutate(function(st){
+        var r=st.rewards.filter(function(x){return x.id===d.buy})[0];
+        var pl=st.players.filter(function(x){return x.id===cur})[0];
+        if(!r||pl.coins<r.cost){toast('Not enough coins yet.');return}
+        pl.coins-=r.cost;
+        st.log.push({id:uid(),kind:'rw',pid:cur,ts:Date.now(),nm:r.nm,ic:r.ic,cost:r.cost,done:false});
+        toast('Redeemed. Go collect it.');
+      });return;
+    }
+    if(d.done){mutate(function(st){var e=st.log.filter(function(x){return x.id===d.done})[0];if(e)e.done=true;toast('Marked as delivered.')});return}
+    if(d.delrw){mutate(function(st){st.rewards=st.rewards.filter(function(x){return x.id!==d.delrw})});return}
+    if(d.delex){mutate(function(st){st.ex=st.ex.filter(function(x){return x.id!==d.delex})});return}
+    if(d.delst){mutate(function(st){st.streaks=st.streaks.filter(function(x){return x.id!==d.delst})});return}
+
+    if(d.undo){
+      mutate(function(st){
+        var e=st.log.filter(function(x){return x.id===d.undo})[0]; if(!e)return;
+        var pl=st.players.filter(function(x){return x.id===e.pid})[0];
+        if(pl){pl.coins+=(e.kind==='rw'? e.cost : -(e.coins||0)); if(pl.coins<0)pl.coins=0}
+        st.log=st.log.filter(function(x){return x.id!==d.undo});
+        toast('Deleted, coins put back.');
+      });return;
+    }
+
+    if(t.id==='rAdd'){
+      var rn=document.getElementById('rNm').value.trim(), rc=Math.round(num(document.getElementById('rCost'),0));
+      if(!rn||rc<1){toast('Needs a name and a coin cost.');return}
+      var ric=newIc.rw; newIc.rw='🎁';
+      mutate(function(st){st.rewards.push({id:uid(),ic:ric,nm:rn,cost:rc});toast('Reward added.')});return;
+    }
+    if(t.id==='exAdd'){
+      var en=document.getElementById('exNm').value.trim(),
+          em=Math.max(0,Math.round(num(document.getElementById('exMins'),0))),
+          ec=Math.max(0,Math.round(num(document.getElementById('exCoins'),0)));
+      if(!en){toast('Give the exercise a name.');return}
+      var eic=newIc.ex; newIc.ex='🏃';
+      mutate(function(st){st.ex.push({id:uid(),ic:eic,nm:en,mins:em,coins:ec});toast('Exercise added.')});return;
+    }
+    if(t.id==='stAdd'){
+      var sd=Math.round(num(document.getElementById('stDays'),0)), sc=Math.round(num(document.getElementById('stCoins'),0));
+      if(sd<1||sd>7){toast('Days has to be 1 to 7.');return}
+      mutate(function(st){
+        if(st.streaks.some(function(x){return x.days===sd})){toast('There is already a rule for '+sd+' days.');return}
+        st.streaks.push({id:uid(),days:sd,coins:Math.max(0,sc)});toast('Streak reward added.');
+      });return;
+    }
+    if(t.id==='dbSave'){
+      var v=document.getElementById('dbIn').value.trim().replace(/\/+$/,'');
+      if(v&&!/^https:\/\/[^\s]+$/.test(v)){ toast('That should start with https:// and have no spaces.'); return }
+      try{ v?localStorage.setItem(UKEY,v):localStorage.removeItem(UKEY) }catch(e){}
+      DB_URL=v; online=!!v; netOk=true; dirty=false;
+      (async function(){
+        if(online){
+          var remote=await load();
+          if(remote&&remote.players&&remote.log) S=remote;      // join what is already there
+          else await save(S);                                    // or seed an empty database
+        }
+        document.getElementById('warnbox').innerHTML='';
+        status(); render();
+        toast(online?'Connected. Ellisa can join with the same link.':'Disconnected. This phone only.');
+      })();
+      return;
+    }
+    if(t.id==='bkRestore'){
+      var box=document.getElementById('bkBox');
+      if(box.readOnly){ box.readOnly=false; box.focus(); toast('Paste your backup over the text, then tap again.'); return }
+      var parsed=null;
+      try{ parsed=JSON.parse(box.value) }catch(e){ toast('That is not valid backup text.'); return }
+      if(!parsed||!parsed.players||!parsed.players.length){ toast('That backup is missing its players.'); return }
+      if(!confirm('Replace everything with this backup?')) return;
+      mutate(function(st){
+        Object.keys(st).forEach(function(k){delete st[k]});
+        Object.keys(parsed).forEach(function(k){st[k]=parsed[k]});
+        toast('Restored.');
+      });
+      return;
+    }
+    if(t.id==='wipe'){
+      if(!confirm('Wipe all coins, diary, exercises and rewards?')) return;
+      mutate(function(st){
+        var f=JSON.parse(JSON.stringify(DEF));
+        f.players[0].name=st.players[0].name; f.players[0].av=st.players[0].av;
+        f.players[1].name=st.players[1].name; f.players[1].av=st.players[1].av;
+        Object.keys(st).forEach(function(k){delete st[k]});
+        Object.keys(f).forEach(function(k){st[k]=f[k]});
+        toast('Fresh start.');
+      });return;
+    }
+  });
+
+  document.getElementById('ecc').addEventListener('change',function(ev){
+    var el=ev.target;
+    if(el.dataset.photo){
+      var f=el.files&&el.files[0]; if(!f) return;
+      var pid=el.dataset.photo;
+      readFile(f,function(raw){ setPhoto(pid,raw,true,1) });
+      return;
+    }
+    var fl=el.dataset.f; if(!fl) return;
+    var pid2=el.dataset.p, iid=el.dataset.i;
+    mutate(function(st){
+      var p=st.players.filter(function(x){return x.id===pid2})[0];
+      var e=st.ex.filter(function(x){return x.id===iid})[0];
+      var s=st.streaks.filter(function(x){return x.id===iid})[0];
+      if(fl==='nm'&&p) p.name=el.value.trim()||'Player';
+      if(fl==='coins'&&p) p.coins=Math.max(0,Math.round(num(el,0)));
+      if(fl==='exnm'&&e) e.nm=el.value.trim()||'Exercise';
+      if(fl==='exmins'&&e) e.mins=Math.max(0,Math.round(num(el,0)));
+      if(fl==='excoins'&&e) e.coins=Math.max(0,Math.round(num(el,0)));
+      if(fl==='stdays'&&s) s.days=Math.min(7,Math.max(1,Math.round(num(el,1))));
+      if(fl==='stcoins'&&s) s.coins=Math.max(0,Math.round(num(el,0)));
+    },true).then(function(){
+      var p=P(cur);
+      if(p){
+        document.getElementById('balName').textContent=p.name+' has';
+        document.getElementById('balCoins').innerHTML=p.coins+' <span>coin'+(p.coins===1?'':'s')+'</span>';
+      }
+    });
+  });
+
+  async function refresh(){
+    if(tab==='set'||sheet||busy) return;
+    if(dirty&&online){ await save(S); if(dirty) return }   // never overwrite unsynced work
+    S=await load(); render();
+  }
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh()});
+  setInterval(function(){if(!document.hidden)refresh()},10000);
+
+  (async function init(){
+    S=await load();
+    if(migrate(S)) await save(S);
+    cur=S.players[0].id;
+    if(!online) document.getElementById('warnbox').innerHTML='<div class="warn">Not connected yet, so coins stay on this phone and Ellisa will not see them. Open Setup and paste your Firebase URL into the Database box.</div>';
+    status();
+    render();
+  })();
+})();
+</script>
+
+</body>
+</html>
