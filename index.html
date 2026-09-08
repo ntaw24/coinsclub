@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ellisa &amp; Nathan Exercise Coin Club</title>
 <meta name="theme-color" content="#D8342A">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Coin Club">
@@ -162,17 +164,27 @@
   var SECRET = "ec7k3q9v2m";
   /* ============================================================== */
 
+  var BUILD='build 15';
   var LKEY='ecc-cache-v3', UKEY='ecc-dburl';
   try{ var saved=localStorage.getItem(UKEY); if(saved) DB_URL=saved }catch(e){}
   var online = !!DB_URL, netOk = true, dirty = false, mem = null;
   function dbRef(){ return DB_URL.replace(/\/+$/,'')+'/coinclub/'+SECRET+'.json' }
+  // Firebase hands object keys back alphabetically, so a plain stringify sees a
+  // difference where there is none. Compare canonically instead.
+  function canon(o){
+    if(Array.isArray(o)) return '['+o.map(canon).join(',')+']';
+    if(o&&typeof o==='object') return '{'+Object.keys(o).sort().map(function(k){return JSON.stringify(k)+':'+canon(o[k])}).join(',')+'}';
+    return JSON.stringify(o===undefined?null:o);
+  }
   function cacheGet(){ try{var v=localStorage.getItem(LKEY); return v?JSON.parse(v):null}catch(e){return null} }
   function cacheSet(st){ try{localStorage.setItem(LKEY,JSON.stringify(st))}catch(e){} }
   function status(){
     var el=document.getElementById('sync'); if(!el) return;
-    if(!online){ el.textContent='No database set — coins save on this phone only.'; return }
-    if(dirty){ el.textContent='Waiting to sync…'; return }
-    el.textContent = netOk ? 'In sync. You both see the same coins.' : 'Offline. Saved here, will sync later.';
+    var msg;
+    if(!online) msg='No database set — coins save on this phone only.';
+    else if(dirty) msg='Waiting to sync…';
+    else msg = netOk ? 'In sync. You both see the same coins.' : 'Offline. Saved here, will sync later.';
+    el.textContent = msg+'  ·  '+BUILD;
   }
 
   var EX_GROUPS={
@@ -821,6 +833,7 @@
     if(t.id==='stAdd'){
       var sd=Math.round(num(document.getElementById('stDays'),0)), sc=Math.round(num(document.getElementById('stCoins'),0));
       if(sd<1||sd>7){toast('Days has to be 1 to 7.');return}
+      clearDraft(['stDays','stCoins']);
       mutate(function(st){
         if(st.streaks.some(function(x){return x.days===sd})){toast('There is already a rule for '+sd+' days.');return}
         st.streaks.push({id:uid(),days:sd,coins:Math.max(0,sc)});toast('Streak reward added.');
@@ -905,18 +918,41 @@
     });
   });
 
+  function hasDraft(){
+    for(var i=0;i<DRAFTS.length;i++){ if((draft[DRAFTS[i]]||'')!=='') return true }
+    return false;
+  }
+  // Ask the server for this very page and compare build tags. If the repo has moved
+  // on, reload once so the plain link always ends up running the newest version.
+  async function checkUpdate(){
+    if(busy||sheet||hasDraft()) return;
+    var ae=document.activeElement;
+    if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA')) return;
+    try{
+      var r=await fetch(location.pathname+'?cb='+Date.now(),{cache:'no-store'});
+      if(!r.ok) return;
+      var m=(await r.text()).match(/var BUILD='([^']+)'/);
+      if(!m||m[1]===BUILD) return;
+      var last=+(localStorage.getItem('ecc-reload')||0);
+      if(Date.now()-last<120000){ toast('A newer version is ready. Close and reopen.'); return }
+      localStorage.setItem('ecc-reload',String(Date.now()));
+      location.replace(location.pathname+'?b='+encodeURIComponent(m[1]).replace(/%20/g,'-'));
+    }catch(e){}
+  }
+
   async function refresh(){
     if(tab==='set'||sheet||busy) return;
-    var ae=document.activeElement;                          // someone is typing: leave them alone
+    var ae=document.activeElement;                          // someone is typing
     if(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA')) return;
+    if(hasDraft()) return;                                  // a half-filled form is sacred
     if(dirty&&online){ await save(S); if(dirty) return }    // never overwrite unsynced work
     var next=await load();
     var same;
-    try{ same = JSON.stringify(next)===JSON.stringify(S) }catch(e){ same=false }
+    try{ same = canon(next)===canon(S) }catch(e){ same=false }
     S=next;
     if(!same) render();                                     // nothing new, so nothing to redraw
   }
-  document.addEventListener('visibilitychange',function(){if(!document.hidden)refresh()});
+  document.addEventListener('visibilitychange',function(){if(!document.hidden){refresh();checkUpdate()}});
   setInterval(function(){if(!document.hidden)refresh()},10000);
 
   (async function init(){
@@ -926,6 +962,8 @@
     if(!online) document.getElementById('warnbox').innerHTML='<div class="warn">Not connected yet, so coins stay on this phone and Ellisa will not see them. Open Setup and paste your Firebase URL into the Database box.</div>';
     status();
     render();
+    setTimeout(checkUpdate,2500);
+    setInterval(checkUpdate,600000);
   })();
 })();
 </script>
