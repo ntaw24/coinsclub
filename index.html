@@ -112,6 +112,7 @@
 
   #ecc .sheet{position:fixed;inset:0;background:rgba(26,22,19,.55);z-index:70;display:flex;align-items:flex-end;justify-content:center}
   #ecc .sheet .in{background:var(--paper);border:3px solid var(--ink);border-radius:6px 6px 0 0;padding:14px;width:100%;max-width:470px;max-height:78vh;overflow:auto}
+  #ecc .gname{font-size:12px;color:#6B625A;margin:4px 0 5px}
   #ecc .picks{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:14px}
   #ecc .picks button{font-size:22px;padding:6px 0;background:#fff;border:2px solid var(--ink);border-radius:4px;cursor:pointer;font-family:var(--comic)}
   #ecc .doodles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
@@ -176,8 +177,23 @@
     el.textContent = netOk ? 'In sync. You both see the same coins.' : 'Offline. Saved here, will sync later.';
   }
 
-  var EX_ICONS='🚶 🏃 🏋️ 🚴 🏊 🧘 🤸 🏸 🏀 ⚽ 🥊 🎾 🏓 🥋 🛹 🧗 💃 🕺 ⛹️ 🤾 🚣 ⛷️ 🏄 🦶'.split(' ');
-  var RW_ICONS='🍪 🎂 🍰 🧁 🍦 🍩 🍫 🍭 🧇 🥞 ☕ 🧋 🍜 🍕 🍟 🥟 🍣 🌮 🎁 🎈 🎟️ 🎬 🎮 🎧 📚 🧸 💆 🛌 😴 🛍️ 👟 💐 🌻 ❤️ 💌 🏖️ ✈️ 🚗 🎡 🎠 🪁 ⛱️ 🦴 🐶 🐾 🌟 🏆 👑'.split(' ');
+  var EX_GROUPS={
+    'Cardio':'🚶 🏃 🚴 🏊 🛼 🛹 🧗 🤸 🪢 ⛷️ 🏄 🚣',
+    'Gym':'🏋️ 💪 🥊 🤼 🦶 ⚖️',
+    'Sports':'🏸 🏀 ⚽ 🎾 🏓 🏐 ⚾ 🥋 🏑 🤾 ⛹️ ⛳',
+    'Calm':'🧘 🩰 💃 🕺 🚿 🧎',
+    'Other':'⭐ 🔥 ⏱️ 📈 🎽 🥇'
+  };
+  var RW_GROUPS={
+    'Sweets':'🍰 🎂 🧁 🍪 🍩 🍫 🍬 🍭 🍮 🥧 🍨 🍧 🍦 🥮 🍡 🥠 🧇 🥞 🍯 🍓 🍒 🍎',
+    'Food':'🍜 🍲 🍛 🍣 🍤 🍱 🥟 🍚 🍙 🌮 🌯 🥙 🍕 🍔 🍟 🌭 🥩 🍗 🥗 🥘 🫕 🧆 🥪 🥨 🧀 🦐 🦀 🍿',
+    'Drinks':'☕ 🧋 🥤 🧃 🍵 🥛 🍺 🍻 🍷 🥂 🍸 🍹',
+    'Rest & care':'💆 🛀 🛌 😴 🧖 💅 💇 🕯️ 🫂 💋 ❤️ 💌 🌹 💐',
+    'Going out':'🎬 🎟️ 🎤 🎡 🎢 🎠 🏖️ ⛱️ ✈️ 🚗 🏨 🗺️ 🎣 🎳 🎯 🎮 🕹️ 🎲',
+    'Things':'🎁 🎈 🛍️ 👟 👗 👜 💄 🧸 📚 🎧 ⌚ 💍 💸 🪙',
+    'Club':'🐶 🐾 🦴 🏆 👑 🌟 🔥 🥷'
+  };
+  function flat(g){ var o=[]; Object.keys(g).forEach(function(k){ o=o.concat(g[k].split(' ')) }); return o }
   var AV_ICONS='🐶 🐕 🦮 🐩 🐾 🦴 🐦 🐤 🐱 🐰 🧸 🥷 ⚔️ 🍥 🌸 🔥 ⚡ 🌙 ⭐ 🎈 🧢 👟 🏀 🥊'.split(' ');
 
   // hand-drawn comic doodles (original artwork, comic-strip ink style)
@@ -539,14 +555,15 @@
     if(!S.rewards.length) h+='<p class="muted">No rewards yet. Add the first one below.</p>';
     S.rewards.forEach(function(r){
       var ok=p.coins>=r.cost;
-      h+='<div class="rw"><span class="em">'+esc(r.ic)+'</span><span class="nm">'+esc(r.nm)+
+      h+='<div class="rw"><button class="icbtn" data-pick="rw-'+r.id+'" title="change icon">'+esc(r.ic)+'</button><span class="nm">'+esc(r.nm)+
          '<small>'+coinTxt(r.cost)+(ok?'':' · '+(r.cost-p.coins)+' to go')+'</small></span>'+
          '<button class="btn" data-buy="'+r.id+'"'+(ok?'':' disabled')+'>Redeem</button>'+
          '<button class="x" data-delrw="'+r.id+'" title="remove">✕</button></div>';
     });
     h+='<div class="addbox" style="margin-top:14px"><h2>Add a reward</h2><div class="row">'+
        '<button class="icbtn" data-pick="rw-new">'+esc(newIc.rw)+'</button>'+
-       '<input class="grow" id="rNm" placeholder="What they get"><input class="w66" id="rCost" type="number" min="1" placeholder="coins"></div>'+
+       '<input class="grow" id="rNm" placeholder="What they get" value="'+dv('rNm')+'">'+
+       '<input class="w66" id="rCost" type="number" min="1" placeholder="coins" value="'+dv('rCost')+'"></div>'+
        '<button class="btn ghost wide" id="rAdd">Add reward</button></div>';
 
     var pend=S.log.filter(function(e){return e.kind==='rw'&&!e.done});
@@ -603,9 +620,9 @@
     });
     h+='<div class="row"><span class="grow"></span><label class="w52" style="margin:0;text-align:center">min</label><label class="w52" style="margin:0;text-align:center">coins</label><span style="width:22px"></span></div>';
     h+='<div class="addbox"><div class="row"><button class="icbtn" data-pick="ex-new">'+esc(newIc.ex)+'</button>'+
-       '<input class="grow" id="exNm" placeholder="New exercise">'+
-       '<input class="w52" id="exMins" type="number" min="0" placeholder="min">'+
-       '<input class="w52" id="exCoins" type="number" min="0" placeholder="🪙"></div>'+
+       '<input class="grow" id="exNm" placeholder="New exercise" value="'+dv('exNm')+'">'+
+       '<input class="w52" id="exMins" type="number" min="0" placeholder="min" value="'+dv('exMins')+'">'+
+       '<input class="w52" id="exCoins" type="number" min="0" placeholder="🪙" value="'+dv('exCoins')+'"></div>'+
        '<button class="btn ghost wide" id="exAdd">Add exercise</button></div>';
 
     h+='<div class="sec"></div><h2>Weekly streak rewards</h2>';
@@ -675,20 +692,31 @@
 
   /* ---------- pickers ---------- */
   var newIc={ex:'🏃',rw:'🎁'};
+  var DRAFTS=['rNm','rCost','exNm','exMins','exCoins','stDays','stCoins'];
+  var draft={};
+  function grabDraft(){ DRAFTS.forEach(function(id){ var el=document.getElementById(id); if(el) draft[id]=el.value }) }
+  function dv(id){ return esc(draft[id]||'') }
+  function clearDraft(ids){ ids.forEach(function(id){ draft[id]='' }) }
   function drawSheet(){
     var box=document.getElementById('sheet');
     if(!sheet){box.innerHTML='';return}
-    var isAv=sheet.slice(0,3)==='av-';
-    var set=isAv?AV_ICONS:(sheet.slice(0,3)==='ex-'?EX_ICONS:RW_ICONS);
+    var kind=sheet.slice(0,3), isAv=kind==='av-';
     var h='<div class="sheet" data-close="1"><div class="in"><h2>'+(isAv?'Pick a character':'Pick an icon')+'</h2>';
     if(isAv){
       h+='<div class="doodles">';
       Object.keys(DOODLES).forEach(function(k){h+='<button data-dood="'+k+'">'+DOODLES[k]+'</button>'});
+      h+='</div><div class="picks">';
+      AV_ICONS.forEach(function(e){h+='<button data-set="'+esc(e)+'">'+e+'</button>'});
       h+='</div>';
+    }else{
+      var groups = kind==='ex-' ? EX_GROUPS : RW_GROUPS;
+      Object.keys(groups).forEach(function(name){
+        h+='<div class="gname">'+esc(name)+'</div><div class="picks">';
+        groups[name].split(' ').forEach(function(e){h+='<button data-set="'+esc(e)+'">'+e+'</button>'});
+        h+='</div>';
+      });
     }
-    h+='<div class="picks">';
-    set.forEach(function(e){h+='<button data-set="'+esc(e)+'">'+e+'</button>'});
-    h+='</div><button class="btn ghost wide" data-close="1">Close</button></div></div>';
+    h+='<button class="btn ghost wide" data-close="1">Close</button></div></div>';
     box.innerHTML=h;
   }
   function applyIcon(val,isDoodle){
@@ -711,6 +739,7 @@
   document.body.addEventListener('click',function(ev){
     var t=ev.target.closest('button,[data-close]'); if(!t) return;
     var d=t.dataset||{};
+    grabDraft();
 
     if(d.dood!==undefined&&sheet){applyIcon(d.dood,true);return}
     if(d.set!==undefined&&sheet){applyIcon(d.set,false);return}
@@ -782,7 +811,7 @@
     if(t.id==='rAdd'){
       var rn=document.getElementById('rNm').value.trim(), rc=Math.round(num(document.getElementById('rCost'),0));
       if(!rn||rc<1){toast('Needs a name and a coin cost.');return}
-      var ric=newIc.rw; newIc.rw='🎁';
+      var ric=newIc.rw; newIc.rw='🎁'; clearDraft(['rNm','rCost']);
       mutate(function(st){st.rewards.push({id:uid(),ic:ric,nm:rn,cost:rc});toast('Reward added.')});return;
     }
     if(t.id==='exAdd'){
@@ -790,7 +819,7 @@
           em=Math.max(0,Math.round(num(document.getElementById('exMins'),0))),
           ec=Math.max(0,Math.round(num(document.getElementById('exCoins'),0)));
       if(!en){toast('Give the exercise a name.');return}
-      var eic=newIc.ex; newIc.ex='🏃';
+      var eic=newIc.ex; newIc.ex='🏃'; clearDraft(['exNm','exMins','exCoins']);
       mutate(function(st){st.ex.push({id:uid(),ic:eic,nm:en,mins:em,coins:ec});toast('Exercise added.')});return;
     }
     if(t.id==='stAdd'){
