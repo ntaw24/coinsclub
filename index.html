@@ -364,6 +364,28 @@
     return {mask:mask,area:bestArea,total:total};
   }
 
+  // How much of what was removed sits *inside* the figure. A pixel with kept pixels
+  // on three or more sides was almost certainly part of the subject, so a high share
+  // means the fill chewed inwards rather than peeling the backdrop off the outside.
+  function biteShare(mask,W,H){
+    var N=W*H, L=new Uint8Array(N), R=new Uint8Array(N), U=new Uint8Array(N), Dn=new Uint8Array(N);
+    var x,y,i,seen;
+    for(y=0;y<H;y++){
+      seen=0; for(x=0;x<W;x++){ i=y*W+x; if(mask[i])seen=1; L[i]=seen }
+      seen=0; for(x=W-1;x>=0;x--){ i=y*W+x; if(mask[i])seen=1; R[i]=seen }
+    }
+    for(x=0;x<W;x++){
+      seen=0; for(y=0;y<H;y++){ i=y*W+x; if(mask[i])seen=1; U[i]=seen }
+      seen=0; for(y=H-1;y>=0;y--){ i=y*W+x; if(mask[i])seen=1; Dn[i]=seen }
+    }
+    var kept=0, bite=0;
+    for(i=0;i<N;i++){
+      if(mask[i]){ kept++; continue }
+      if(L[i]+R[i]+U[i]+Dn[i]>=3) bite++;
+    }
+    return bite/Math.max(kept,1);
+  }
+
   // Try the safest strategy first and only accept a result that passes every check.
   // Returns ImageData, or null meaning "leave this picture alone".
   function knockout(g,base,W,H){
@@ -375,6 +397,15 @@
     cor.forEach(function(k){r0+=d[k*4];g0+=d[k*4+1];b0+=d[k*4+2]});
     var ref=[r0/4,g0/4,b0/4];
 
+    // An independent estimate of how big the subject is, measured with a much tighter
+    // threshold than any fill uses. Judging a fill by its own threshold is circular:
+    // a threshold loose enough to swallow a pale subject also decides that subject
+    // was never there. This is only meaningful on a flat background — on a gradient
+    // it counts the backdrop too, so it is used only when it looks like a subject.
+    var wantRef=0, TOLREF=12*12*3;
+    for(i=0;i<N;i++) if(d2(d,i,ref[0],ref[1],ref[2])>TOLREF) wantRef++;
+    var useWant = wantRef>N*0.005 && wantRef<N*0.45;
+
     var plans=[[0,22],[0,13],[0,7],[1,10],[1,16],[1,24]];
     for(var p=0;p<plans.length;p++){
       var mode=plans[p][0], param=plans[p][1];
@@ -383,7 +414,9 @@
       var removed=1-solid/N;
       if(removed<0.12) continue;                               // barely touched anything
 
-      if(mode===0){                                            // did the fill eat the figure?
+      if(useWant){                                             // did the fill bite into the figure?
+        if(solid<wantRef*0.88) continue;
+      }else if(mode===0){
         var want=0, tol=param*param*3;
         for(i=0;i<N;i++) if(d2(d,i,ref[0],ref[1],ref[2])>tol) want++;
         if(solid<want*0.88) continue;
@@ -396,6 +429,7 @@
       var b=biggestBlob(keep,W,H); if(!b) continue;
       var keptf=b.area/N, blobf=b.area/Math.max(b.total,1);
       if(keptf<0.02||keptf>0.8||blobf<0.45) continue;          // confetti, or almost nothing left
+      if(biteShare(b.mask,W,H)>0.26) continue;                 // chewed into the figure itself
 
       var out=g.createImageData(W,H); out.data.set(d);
       var o=out.data;
@@ -422,7 +456,7 @@
       if(dd){
         var anyClear=false;
         for(i=0;i<N;i++) if(dd[i*4+3]<20){anyClear=true;break}
-        var cr=dd[0],cg=dd[1],cb2=dd[2], tol2=40*40;
+        var cr=dd[0],cg=dd[1],cb2=dd[2], tol2=12*12*3;
         for(i=0;i<N;i++){
           var solid = anyClear ? dd[i*4+3]>20 : d2(dd,i,cr,cg,cb2)>tol2;
           if(solid){ px=i%W; py=(i-px)/W; if(px<x0)x0=px; if(px>x1)x1=px; if(py<y0)y0=py; if(py>y1)y1=py }
