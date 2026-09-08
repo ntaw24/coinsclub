@@ -110,8 +110,7 @@
   #ecc .syncline{font-size:12px;color:#6B625A;text-align:center;padding-bottom:6px}
   #ecc .warn{background:var(--red);color:#fff;border:3px solid var(--ink);border-radius:4px;padding:9px;font-size:13px;margin-bottom:14px}
 
-  #ecc .sheet{position:fixed;inset:0;background:rgba(26,22,19,.55);z-index:70;display:flex;align-items:flex-end;justify-content:center}
-  #ecc .sheet .in{background:var(--paper);border:3px solid var(--ink);border-radius:6px 6px 0 0;padding:14px;width:100%;max-width:470px;max-height:78vh;overflow:auto}
+  #ecc .picker{border:3px solid var(--ink);border-radius:4px;background:var(--paper);padding:10px;margin:0 0 12px;box-shadow:3px 3px 0 var(--ink)}
   #ecc .gname{font-size:12px;color:#6B625A;margin:4px 0 5px}
   #ecc .picks{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:14px}
   #ecc .picks button{font-size:22px;padding:6px 0;background:#fff;border:2px solid var(--ink);border-radius:4px;cursor:pointer;font-family:var(--comic)}
@@ -150,7 +149,6 @@
   </div>
   <div id="sync" class="syncline"></div>
 </div>
-<div id="sheet"></div>
 
 <script>
 (function(){
@@ -178,23 +176,21 @@
   }
 
   var EX_GROUPS={
-    'Cardio':'🚶 🏃 🚴 🏊 🛼 🛹 🧗 🤸 🪢 ⛷️ 🏄 🚣',
-    'Gym':'🏋️ 💪 🥊 🤼 🦶 ⚖️',
-    'Sports':'🏸 🏀 ⚽ 🎾 🏓 🏐 ⚾ 🥋 🏑 🤾 ⛹️ ⛳',
-    'Calm':'🧘 🩰 💃 🕺 🚿 🧎',
-    'Other':'⭐ 🔥 ⏱️ 📈 🎽 🥇'
+    'Cardio':'🚶 🏃 🚴 🏊 🤸 🧗',
+    'Gym':'🏋️ 💪 🥊 🦶',
+    'Sports':'🏸 🏀 ⚽ 🎾 🏓 🥋',
+    'Calm':'🧘 💃'
   };
   var RW_GROUPS={
-    'Sweets':'🍰 🎂 🧁 🍪 🍩 🍫 🍬 🍭 🍮 🥧 🍨 🍧 🍦 🥮 🍡 🥠 🧇 🥞 🍯 🍓 🍒 🍎',
-    'Food':'🍜 🍲 🍛 🍣 🍤 🍱 🥟 🍚 🍙 🌮 🌯 🥙 🍕 🍔 🍟 🌭 🥩 🍗 🥗 🥘 🫕 🧆 🥪 🥨 🧀 🦐 🦀 🍿',
-    'Drinks':'☕ 🧋 🥤 🧃 🍵 🥛 🍺 🍻 🍷 🥂 🍸 🍹',
-    'Rest & care':'💆 🛀 🛌 😴 🧖 💅 💇 🕯️ 🫂 💋 ❤️ 💌 🌹 💐',
-    'Going out':'🎬 🎟️ 🎤 🎡 🎢 🎠 🏖️ ⛱️ ✈️ 🚗 🏨 🗺️ 🎣 🎳 🎯 🎮 🕹️ 🎲',
-    'Things':'🎁 🎈 🛍️ 👟 👗 👜 💄 🧸 📚 🎧 ⌚ 💍 💸 🪙',
-    'Club':'🐶 🐾 🦴 🏆 👑 🌟 🔥 🥷'
+    'Cake & dessert':'🍰 🎂 🧁 🍪 🍩 🍫 🍦 🍨 🍮 🥧 🧇',
+    'Food':'🍜 🍛 🍣 🍱 🥟 🍕 🍔 🍟 🍗 🌮 🍿',
+    'Drinks':'☕ 🧋 🥤 🍵 🍺',
+    'Treats':'💆 🎬 🎁'
+  };
+  var AV_GROUPS={
+    'Emoji':'🐶 🐕 🐾 🦴 🐦 🐱 🐰 🧸 🥷 ⭐ 🔥 🌸'
   };
   function flat(g){ var o=[]; Object.keys(g).forEach(function(k){ o=o.concat(g[k].split(' ')) }); return o }
-  var AV_ICONS='🐶 🐕 🦮 🐩 🐾 🦴 🐦 🐤 🐱 🐰 🧸 🥷 ⚔️ 🍥 🌸 🔥 ⚡ 🌙 ⭐ 🎈 🧢 👟 🏀 🥊'.split(' ');
 
   // hand-drawn comic doodles (original artwork, comic-strip ink style)
   var DOODLES={
@@ -559,11 +555,13 @@
          '<small>'+coinTxt(r.cost)+(ok?'':' · '+(r.cost-p.coins)+' to go')+'</small></span>'+
          '<button class="btn" data-buy="'+r.id+'"'+(ok?'':' disabled')+'>Redeem</button>'+
          '<button class="x" data-delrw="'+r.id+'" title="remove">✕</button></div>';
+      h+=pickerFor('rw-'+r.id,'rw');
     });
     h+='<div class="addbox" style="margin-top:14px"><h2>Add a reward</h2><div class="row">'+
        '<button class="icbtn" data-pick="rw-new">'+esc(newIc.rw)+'</button>'+
        '<input class="grow" id="rNm" placeholder="What they get" value="'+dv('rNm')+'">'+
        '<input class="w66" id="rCost" type="number" min="1" placeholder="coins" value="'+dv('rCost')+'"></div>'+
+       pickerFor('rw-new','rw')+
        '<button class="btn ghost wide" id="rAdd">Add reward</button></div>';
 
     var pend=S.log.filter(function(e){return e.kind==='rw'&&!e.done});
@@ -601,6 +599,7 @@
          '<input class="w66" data-f="coins" data-p="'+p.id+'" type="number" min="0" value="'+p.coins+'"></div>';
       h+='<div class="row"><button class="btn ghost grow" data-pick="av-'+p.id+'">Pick a character</button>'+
          '<label class="btn ghost" style="margin:0;font-size:13px">Use a photo<input type="file" accept="image/*" data-photo="'+p.id+'" style="display:none"></label></div>';
+      h+=pickerFor('av-'+p.id,'av');
       if(p.av&&p.av.t==='i'&&p.av.raw){
         h+='<div class="row" style="margin-bottom:16px"><span class="muted grow">Picture fit</span>'+
            '<button class="btn tiny ghost" data-zoom="'+p.id+'|-">smaller</button>'+
@@ -617,12 +616,14 @@
          '<input class="w52" data-f="exmins" data-i="'+e.id+'" type="number" min="0" value="'+e.mins+'">'+
          '<input class="w52" data-f="excoins" data-i="'+e.id+'" type="number" min="0" value="'+e.coins+'">'+
          '<button class="x" data-delex="'+e.id+'">✕</button></div>';
+      h+=pickerFor('ex-'+e.id,'ex');
     });
     h+='<div class="row"><span class="grow"></span><label class="w52" style="margin:0;text-align:center">min</label><label class="w52" style="margin:0;text-align:center">coins</label><span style="width:22px"></span></div>';
     h+='<div class="addbox"><div class="row"><button class="icbtn" data-pick="ex-new">'+esc(newIc.ex)+'</button>'+
        '<input class="grow" id="exNm" placeholder="New exercise" value="'+dv('exNm')+'">'+
        '<input class="w52" id="exMins" type="number" min="0" placeholder="min" value="'+dv('exMins')+'">'+
        '<input class="w52" id="exCoins" type="number" min="0" placeholder="🪙" value="'+dv('exCoins')+'"></div>'+
+       pickerFor('ex-new','ex')+
        '<button class="btn ghost wide" id="exAdd">Add exercise</button></div>';
 
     h+='<div class="sec"></div><h2>Weekly streak rewards</h2>';
@@ -677,7 +678,6 @@
         '<p class="muted">'+esc(err&&err.message||err)+'</p>'+
         '<button class="btn ghost wide" onclick="location.reload()">Reload</button>';
     }
-    drawSheet();
   }
 
   function bang(n){
@@ -697,28 +697,24 @@
   function grabDraft(){ DRAFTS.forEach(function(id){ var el=document.getElementById(id); if(el) draft[id]=el.value }) }
   function dv(id){ return esc(draft[id]||'') }
   function clearDraft(ids){ ids.forEach(function(id){ draft[id]='' }) }
-  function drawSheet(){
-    var box=document.getElementById('sheet');
-    if(!sheet){box.innerHTML='';return}
-    var kind=sheet.slice(0,3), isAv=kind==='av-';
-    var h='<div class="sheet" data-close="1"><div class="in"><h2>'+(isAv?'Pick a character':'Pick an icon')+'</h2>';
-    if(isAv){
+  function pickerHTML(kind){
+    var h='<div class="picker">';
+    if(kind==='av'){
       h+='<div class="doodles">';
       Object.keys(DOODLES).forEach(function(k){h+='<button data-dood="'+k+'">'+DOODLES[k]+'</button>'});
-      h+='</div><div class="picks">';
-      AV_ICONS.forEach(function(e){h+='<button data-set="'+esc(e)+'">'+e+'</button>'});
       h+='</div>';
-    }else{
-      var groups = kind==='ex-' ? EX_GROUPS : RW_GROUPS;
-      Object.keys(groups).forEach(function(name){
-        h+='<div class="gname">'+esc(name)+'</div><div class="picks">';
-        groups[name].split(' ').forEach(function(e){h+='<button data-set="'+esc(e)+'">'+e+'</button>'});
-        h+='</div>';
-      });
     }
-    h+='<button class="btn ghost wide" data-close="1">Close</button></div></div>';
-    box.innerHTML=h;
+    var groups = kind==='av'?AV_GROUPS:(kind==='ex'?EX_GROUPS:RW_GROUPS);
+    Object.keys(groups).forEach(function(name){
+      h+='<div class="gname">'+esc(name)+'</div><div class="picks">';
+      groups[name].split(' ').forEach(function(e){h+='<button data-set="'+esc(e)+'">'+e+'</button>'});
+      h+='</div>';
+    });
+    h+='<button class="btn ghost wide" data-close="1">Close</button></div>';
+    return h;
   }
+  function pickerFor(id,kind){ return sheet===id ? pickerHTML(kind) : '' }
+
   function applyIcon(val,isDoodle){
     var kind=sheet.slice(0,3), id=sheet.slice(3);
     if(kind==='av-'){
@@ -743,8 +739,8 @@
 
     if(d.dood!==undefined&&sheet){applyIcon(d.dood,true);return}
     if(d.set!==undefined&&sheet){applyIcon(d.set,false);return}
-    if(d.close){sheet=null;drawSheet();return}
-    if(d.pick){sheet=d.pick;drawSheet();return}
+    if(d.close){sheet=null;render();return}
+    if(d.pick){sheet=(sheet===d.pick?null:d.pick);render();return}
     if(!document.getElementById('ecc').contains(t)) return;
 
     if(d.who){cur=d.who;render();return}
