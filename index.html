@@ -159,7 +159,7 @@
        https://something-default-rtdb.asia-southeast1.firebasedatabase.app
      Leave SECRET alone unless you want a fresh, empty coin file.
      ============================================================== */
-  var DB_URL = "https://exercise-coins-club-default-rtdb.asia-southeast1.firebasedatabase.app/";
+  var DB_URL = "https://exercise-coins-club-default-rtdb.asia-southeast1.firebasedatabase.app";
   var SECRET = "ec7k3q9v2m";
   /* ============================================================== */
 
@@ -233,6 +233,21 @@
     setTimeout(function(){if(t.parentNode)t.remove()},2600);
   }
 
+  function asArr(v){
+    if(Array.isArray(v)) return v.filter(function(x){return x});
+    if(v&&typeof v==='object') return Object.keys(v).map(function(k){return v[k]}).filter(function(x){return x});
+    return [];
+  }
+  // Firebase does not store empty arrays, so keys can come back missing. Put them back.
+  function normalize(st){
+    if(!st||typeof st!=='object') st={};
+    st.players=asArr(st.players); st.ex=asArr(st.ex);
+    st.rewards=asArr(st.rewards); st.streaks=asArr(st.streaks); st.log=asArr(st.log);
+    if(!st.players.length) st.players=JSON.parse(JSON.stringify(DEF.players));
+    st.players.forEach(function(p){ p.coins=Math.max(0,Math.round(+p.coins||0)) });
+    return st;
+  }
+
   async function load(){
     if(online){
       try{
@@ -240,14 +255,14 @@
         if(r.ok){
           var j=await r.json();
           netOk=true; status();
-          if(j&&j.players){ cacheSet(j); return j }
-          return cacheGet()||JSON.parse(JSON.stringify(DEF));   // database still empty
+          if(j&&j.players){ j=normalize(j); cacheSet(j); return j }
+          return normalize(cacheGet()||JSON.parse(JSON.stringify(DEF)));   // database still empty
         }
         netOk=false;
       }catch(e){ netOk=false }
       status();
     }
-    return cacheGet()||mem||JSON.parse(JSON.stringify(DEF));
+    return normalize(cacheGet()||mem||JSON.parse(JSON.stringify(DEF)));
   }
   async function save(st){
     mem=st; cacheSet(st);                                       // this phone first, always
@@ -604,7 +619,13 @@
     });
     document.getElementById('who').innerHTML=w;
     Array.prototype.forEach.call(document.querySelectorAll('#tabs button'),function(b){b.className=(b.dataset.tab===tab?'on':'')});
-    document.getElementById('view').innerHTML=tab==='log'?vLog():tab==='shop'?vShop():tab==='hist'?vHist():vSet();
+    try{
+      document.getElementById('view').innerHTML=tab==='log'?vLog():tab==='shop'?vShop():tab==='hist'?vHist():vSet();
+    }catch(err){
+      document.getElementById('view').innerHTML='<p>Something went wrong drawing this tab.</p>'+
+        '<p class="muted">'+esc(err&&err.message||err)+'</p>'+
+        '<button class="btn ghost wide" onclick="location.reload()">Reload</button>';
+    }
     drawSheet();
   }
 
